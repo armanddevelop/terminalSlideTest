@@ -3,9 +3,8 @@ import "./Viewer.css";
 
 interface IViewerProps {
   catalog: ICatalog;
-  //images: Array<ICatalog>;
 }
-export const Viewer = ({ catalog /*images*/ }: IViewerProps): JSX.Element => {
+export const Viewer = ({ catalog }: IViewerProps): JSX.Element => {
   return (
     <div className="catalog-view">
       <img

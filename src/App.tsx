@@ -9,10 +9,12 @@ import image1 from "./assets/images/tea-light.jpeg";
 import image2 from "./assets/images/white-light.jpeg";
 import image3 from "./assets/images/pink-light.jpeg";
 import image4 from "./assets/images/tea-light.jpeg";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Viewer } from "./Components/Viewer";
 import { Thumbs } from "./Components/Thumbs";
 import { ICatalog } from "./@types/@types.App";
+import { useData } from "./Hooks/useData";
+import { useSlice } from "./Hooks/useSlice";
 const catalogs: Array<ICatalog> = [
   {
     thumb: thumb1,
@@ -32,84 +34,13 @@ const catalogs: Array<ICatalog> = [
   },
 ];
 function App() {
-  const [data, setData] = useState({
-    catalogs: [...catalogs],
-    catalogSelected: catalogs[0],
-    currentIdx: 0,
-  });
-  const [slide, setSlide] = useState({
-    slideActive: false,
-    slideTimer: null,
-    slideDuration: 3000,
-  });
+  const { data, previousClick, nextClick, selectedCatalog } = useData(catalogs);
+  const { slide, onSlideChange, slideChange } = useSlice();
   const autoPlay = useRef<number | undefined>();
-  const previousClick = () => {
-    const { catalogs, currentIdx } = data;
-    currentIdx === 0 &&
-      setData({
-        ...data,
-        catalogSelected: catalogs[3],
-        currentIdx: 3,
-      });
-    if (currentIdx >= 1) {
-      setData({
-        ...data,
-        catalogSelected: catalogs[currentIdx - 1],
-        currentIdx: currentIdx - 1,
-      });
-    }
-  };
-  const nextClick = () => {
-    const { catalogs, currentIdx } = data;
-    currentIdx === 0 &&
-      setData({
-        ...data,
-        catalogSelected: catalogs[1],
-        currentIdx: currentIdx + 1,
-      });
-    if (currentIdx >= 1 && currentIdx === catalogs.length - 1) {
-      setData({
-        ...data,
-        currentIdx: 0,
-        catalogSelected: catalogs[0],
-      });
-    } else {
-      setData({
-        ...data,
-        catalogSelected: catalogs[currentIdx + 1],
-        currentIdx: currentIdx + 1,
-      });
-    }
-  };
 
-  const onSlideChange = () => {
-    const { slideActive } = slide;
-    setSlide({
-      ...slide,
-      slideActive: !slideActive,
-    });
-  };
-
-  const selectedCatalog = (index: number) => {
-    setData({
-      ...data,
-      catalogSelected: catalogs[index],
-      currentIdx: index,
-    });
-  };
   useEffect(() => {
-    const slideChange = () => {
-      const { slideActive, slideDuration } = slide;
-      if (slideActive) {
-        autoPlay.current = setTimeout(() => {
-          nextClick();
-        }, slideDuration);
-      } else {
-        clearTimeout(autoPlay.current);
-      }
-    };
-    slideChange();
-  }, [slide, slide.slideActive, data.currentIdx]);
+    slideChange(autoPlay, nextClick);
+  }, [slide.slideActive, nextClick, slideChange]);
   return (
     <>
       <div className="title" data-testid="app-title">
